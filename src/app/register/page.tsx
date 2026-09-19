@@ -71,7 +71,7 @@ export default function RegisterPage() {
       }
 
       // Registration successful -> redirect to dashboard
-      router.push('/dashboard');
+      router.push('/login');
       router.refresh();
     } catch (err) {
       setError('A network error occurred. Please check your connection.');
@@ -110,7 +110,7 @@ export default function RegisterPage() {
         dispatch(setUser(data.user));
       }
 
-      router.push('/dashboard');
+      router.push('/login');
       router.refresh();
     } catch {
       setError('Could not connect to Google services.');

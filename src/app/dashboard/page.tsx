@@ -110,6 +110,37 @@ function DashboardContent() {
 
   useEffect(() => {
     loadDashboardData();
+
+    // Handle return from Dodo Payments checkout
+    const paymentStatus = searchParams.get('status');
+    const reference = searchParams.get('reference');
+    const tier = searchParams.get('tier');
+
+    if (paymentStatus === 'success' && reference && tier) {
+      const finalizePurchase = async () => {
+        try {
+          const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product: tier, paymentReference: reference }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            toast.success(data.message || 'Payment confirmed! Credits added.');
+            if (typeof data.newBalance === 'number') {
+              dispatch(setCredits(data.newBalance));
+            }
+            loadDashboardData();
+          }
+        } catch (err) {
+          console.error('Error confirming payment:', err);
+        } finally {
+          router.replace('/dashboard?tab=credits');
+        }
+      };
+
+      finalizePurchase();
+    }
   }, []);
 
   // Purchase Credits Handler (Backend controlled: three_receipts or forty_nine_receipts)
@@ -124,8 +155,14 @@ function DashboardContent() {
 
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || 'Failed to purchase credits');
+        toast.error(data.error || 'Failed to initiate purchase');
         setPurchasing(null);
+        return;
+      }
+
+      // If Dodo hosted checkout URL is returned, redirect customer to checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
         return;
       }
 

@@ -55,6 +55,66 @@ export async function POST(req: Request) {
     const referenceId = paymentReference || `pay_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`;
     const txId = `tx_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`;
 
+    // 1. If Dodo Payments API Key is configured, create a hosted Dodo Checkout Session
+    const dodoApiKey = process.env.DODO_API_KEY;
+    const dodoProductId =
+      product === 'forty_nine_receipts'
+        ? process.env.DODO_PRODUCT_ID_49 || 'pdt_0NnwBxO62Pt0pBh2A3ZUh'
+        : process.env.DODO_PRODUCT_ID_3 || 'pdt_0NnwEA5xI28IF24dK75rZ';
+
+    if (dodoApiKey && dodoProductId && !paymentReference) {
+      const dodoBase =
+        process.env.DODO_MODE === 'live'
+          ? 'https://live.dodopayments.com'
+          : 'https://test.dodopayments.com';
+
+      const origin =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        req.headers.get('origin') ||
+        'http://localhost:3000';
+
+      const returnUrl = `${origin.replace(/\/$/, '')}/dashboard?tab=credits&status=success&tier=${product}&reference=${referenceId}`;
+
+      try {
+        const dodoRes = await fetch(`${dodoBase}/checkouts`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${dodoApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_cart: [{ product_id: dodoProductId, quantity: 1 }],
+            customer: {
+              email: user.email,
+              name: user.name,
+            },
+            return_url: returnUrl,
+            metadata: {
+              userId: user.id,
+              product,
+              credits: String(creditsToAdd),
+              referenceId,
+            },
+          }),
+        });
+
+        const dodoData = await dodoRes.json();
+        const checkoutUrl = dodoData.checkout_url || dodoData.url;
+
+        if (dodoRes.ok && checkoutUrl) {
+          return NextResponse.json({
+            success: true,
+            checkoutUrl,
+            mode: 'dodo',
+          });
+        } else {
+          console.warn('[Dodo Payments Warning - Falling back to direct grant]:', dodoData);
+        }
+      } catch (dodoErr) {
+        console.error('[Dodo Payments Request Error]:', dodoErr);
+      }
+    }
+
     // Database connection for atomic transaction and idempotency enforcement
     const conn = await pool.getConnection();
     try {
