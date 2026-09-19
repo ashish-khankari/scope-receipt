@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2, ExternalLink, Copy, Check, X, Shield, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/lib/store/store';
@@ -16,7 +16,6 @@ interface Props {
 
 export default function PricingCheckoutButton({ tier, label, variant = 'secondary' }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
 
@@ -28,11 +27,14 @@ export default function PricingCheckoutButton({ tier, label, variant = 'secondar
 
   // Auto-initiate checkout if redirected back with ?buy=tier
   useEffect(() => {
-    const buyParam = searchParams.get('buy');
-    if (buyParam === tier && user && !checkoutUrl && !loading) {
-      handleCheckout();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const buyParam = params.get('buy');
+      if (buyParam === tier && user && !checkoutUrl && !loading) {
+        handleCheckout();
+      }
     }
-  }, [searchParams, user]);
+  }, [user]);
 
   const initiateCheckout = async () => {
     setLoading(true);

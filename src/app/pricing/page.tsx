@@ -1,9 +1,12 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { Check, ShieldCheck, Sparkles, Coins, ArrowRight } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import PricingCheckoutButton from './PricingButtons';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Credits & Pricing — ScopeReceipt',
@@ -17,7 +20,8 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <AppShell>
-      <main className="mx-auto max-w-5xl px-5 py-12 sm:px-8 sm:py-20">
+      <Suspense fallback={null}>
+        <main className="mx-auto max-w-5xl px-5 py-12 sm:px-8 sm:py-20">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
@@ -160,6 +164,7 @@ export default function PricingPage() {
           </p>
         </div>
       </main>
+      </Suspense>
     </AppShell>
   );
 }
