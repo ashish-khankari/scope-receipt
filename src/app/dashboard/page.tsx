@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+export const dynamic = 'force-dynamic';
+
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -49,7 +51,7 @@ interface LedgerItem {
   createdAt: string;
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'receipts';
@@ -763,5 +765,22 @@ export default function DashboardPage() {
         )}
       </main>
     </AppShell>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0d0f12] text-[#f4f5f8] flex items-center justify-center">
+          <div className="flex items-center gap-2 font-mono text-sm text-emerald-400">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Loading Dashboard...</span>
+          </div>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
