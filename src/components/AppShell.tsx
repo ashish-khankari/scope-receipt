@@ -58,28 +58,32 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#cbd5e1]">
-            <Link
-              href="/#problem"
-              className="transition-colors hover:text-[#f4f5f8]"
-            >
-              Why Receipts?
-            </Link>
-            <Link
-              href="/#how-it-works"
-              className="transition-colors hover:text-[#f4f5f8]"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="/pricing"
-              className={cn(
-                "transition-colors hover:text-[#f4f5f8]",
-                pathname === '/pricing' && "text-emerald-400 font-semibold"
-              )}
-            >
-              Credits & Pricing
-            </Link>
-            {user && (
+            {!user ? (
+              <>
+                <Link
+                  href="/#problem"
+                  className="transition-colors hover:text-[#f4f5f8]"
+                >
+                  Why Receipts?
+                </Link>
+                <Link
+                  href="/#how-it-works"
+                  className="transition-colors hover:text-[#f4f5f8]"
+                >
+                  How It Works
+                </Link>
+                <Link
+                  href="/pricing"
+                  className={cn(
+                    "transition-colors hover:text-[#f4f5f8]",
+                    pathname === '/pricing' && "text-emerald-400 font-semibold"
+                  )}
+                >
+                  Credits & Pricing
+                </Link>
+              </>
+
+            ) : (
               <Link
                 href="/dashboard"
                 className={cn(
@@ -171,7 +175,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center gap-6 text-xs text-[#cbd5e1]">
               <Link href="/pricing" className="hover:text-emerald-400 transition-colors">Pricing</Link>
-              <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
               <Link href="/create" className="hover:text-emerald-400 transition-colors">Create Receipt</Link>
               {!user && (
                 <Link href="/login" className="hover:text-emerald-400 transition-colors">Login</Link>
