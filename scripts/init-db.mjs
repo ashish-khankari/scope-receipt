@@ -14,12 +14,18 @@ const DB_NAME = process.env.DB_NAME;
 async function initDB() {
   console.log(`[init-db] Connecting to MySQL at ${DB_HOST}:${DB_PORT} as ${DB_USER}...`);
 
+  const sslConfig =
+    process.env.DB_SSL === 'true' || DB_PORT === 4000
+      ? { minVersion: 'TLSv1.2', rejectUnauthorized: false }
+      : undefined;
+
   // 1. Connect without specifying database to create database if not exists
   const serverConn = await mysql.createConnection({
     host: DB_HOST,
     port: DB_PORT,
     user: DB_USER,
     password: DB_PASSWORD,
+    ssl: sslConfig,
   });
 
   console.log(`[init-db] Connected. Ensuring database '${DB_NAME}' exists...`);
@@ -33,6 +39,7 @@ async function initDB() {
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
+    ssl: sslConfig,
   });
 
   console.log(`[init-db] Connected to database '${DB_NAME}'. Ensuring tables...`);

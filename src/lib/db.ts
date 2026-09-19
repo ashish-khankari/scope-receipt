@@ -9,7 +9,7 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'scope_receipt',
   ssl:
     process.env.DB_SSL === 'true' || Number(process.env.DB_PORT) === 4000
-      ? { minVersion: 'TLSv1.2', rejectUnauthorized: true }
+      ? { minVersion: 'TLSv1.2', rejectUnauthorized: false }
       : undefined,
   waitForConnections: true,
   connectionLimit: 10,
