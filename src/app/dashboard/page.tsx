@@ -162,6 +162,14 @@ function DashboardContent() {
 
       // If Dodo hosted checkout URL is returned, redirect customer to checkout
       if (data.checkoutUrl) {
+        toast.success('Redirecting to checkout...', {
+          action: {
+            label: 'Open Link',
+            onClick: () => {
+              window.location.href = data.checkoutUrl;
+            },
+          },
+        });
         window.location.href = data.checkoutUrl;
         return;
       }

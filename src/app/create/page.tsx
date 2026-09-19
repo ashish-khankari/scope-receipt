@@ -101,6 +101,19 @@ export default function CreatePage() {
         return;
       }
 
+      if (data.checkoutUrl) {
+        toast.success('Redirecting to secure checkout...', {
+          action: {
+            label: 'Open Checkout',
+            onClick: () => {
+              window.location.href = data.checkoutUrl;
+            },
+          },
+        });
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+
       toast.success(data.message || 'Credits added!');
       if (typeof data.newBalance === 'number') {
         dispatch(setCredits(data.newBalance));

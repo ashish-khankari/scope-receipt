@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Check, ShieldCheck, Sparkles, Coins, ArrowRight } from 'lucide-react';
 import AppShell from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
+import PricingCheckoutButton from './PricingButtons';
 
 export const metadata: Metadata = {
   title: 'Credits & Pricing — ScopeReceipt',
@@ -90,11 +91,11 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-8">
-              <Link href="/dashboard?tab=credits">
-                <Button className="w-full h-11 bg-[#1b2029] hover:bg-[#232936] border border-[#2e3748] font-semibold text-xs text-[#f4f5f8]">
-                  Purchase 3 Credits ($1)
-                </Button>
-              </Link>
+              <PricingCheckoutButton
+                tier="three_receipts"
+                label="Buy 3 Receipts ($1)"
+                variant="secondary"
+              />
             </div>
           </div>
 
@@ -139,11 +140,11 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-8">
-              <Link href="/dashboard?tab=credits">
-                <Button className="w-full h-11 bg-emerald-500 hover:bg-emerald-400 font-bold text-xs text-black shadow-lg shadow-emerald-500/10">
-                  Purchase 49 Credits ($10)
-                </Button>
-              </Link>
+              <PricingCheckoutButton
+                tier="forty_nine_receipts"
+                label="Buy 49 Receipts ($10)"
+                variant="primary"
+              />
             </div>
           </div>
         </div>

@@ -48,8 +48,10 @@ export default function LoginPage() {
         dispatch(setUser(data.user));
       }
 
-      // Successful login -> go to dashboard
-      router.push('/dashboard');
+      // Successful login -> go to redirect target or dashboard
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const redirectUrl = params?.get('redirect') || '/dashboard';
+      router.push(redirectUrl);
       router.refresh();
     } catch {
       setError('A network error occurred. Please check your connection.');
@@ -84,7 +86,9 @@ export default function LoginPage() {
         dispatch(setUser(data.user));
       }
 
-      router.push('/dashboard');
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const redirectUrl = params?.get('redirect') || '/dashboard';
+      router.push(redirectUrl);
       router.refresh();
     } catch {
       setError('Could not connect to Google services.');

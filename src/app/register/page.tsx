@@ -70,8 +70,10 @@ export default function RegisterPage() {
         dispatch(setUser(data.user));
       }
 
-      // Registration successful -> redirect to dashboard
-      router.push('/login');
+      // Registration successful -> redirect
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const redirectUrl = params?.get('redirect') || '/dashboard';
+      router.push(redirectUrl);
       router.refresh();
     } catch (err) {
       setError('A network error occurred. Please check your connection.');
@@ -110,7 +112,9 @@ export default function RegisterPage() {
         dispatch(setUser(data.user));
       }
 
-      router.push('/login');
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const redirectUrl = params?.get('redirect') || '/dashboard';
+      router.push(redirectUrl);
       router.refresh();
     } catch {
       setError('Could not connect to Google services.');
