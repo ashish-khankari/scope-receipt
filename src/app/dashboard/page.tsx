@@ -111,35 +111,47 @@ function DashboardContent() {
   useEffect(() => {
     loadDashboardData();
 
-    // Handle return from Dodo Payments checkout
+    // Handle return from Dodo Payments checkout.
+    // Credits are granted server-side by the verified Dodo webhook, so we just wait for the balance to update.
     const paymentStatus = searchParams.get('status');
-    const reference = searchParams.get('reference');
-    const tier = searchParams.get('tier');
 
-    if (paymentStatus === 'success' && reference && tier) {
-      const finalizePurchase = async () => {
-        try {
-          const res = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product: tier, paymentReference: reference }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            toast.success(data.message || 'Payment confirmed! Credits added.');
-            if (typeof data.newBalance === 'number') {
-              dispatch(setCredits(data.newBalance));
+    if (paymentStatus === 'success') {
+      router.replace('/dashboard?tab=credits');
+      const toastId = toast.loading('Confirming your payment...');
+
+      const waitForCredits = async () => {
+        let startingCredits: number | null = null;
+        for (let attempt = 0; attempt < 15; attempt++) {
+          try {
+            const res = await fetch('/api/auth/me', { cache: 'no-store' });
+            const data = await res.json();
+            const credits = data?.user?.credits;
+            if (typeof credits === 'number') {
+              if (startingCredits === null) startingCredits = credits;
+              const { ledger: latest } = await fetch('/api/ledger', { cache: 'no-store' })
+                .then((r) => r.json())
+                .then((d) => ({ ledger: Array.isArray(d.transactions) ? d.transactions : [] }))
+                .catch(() => ({ ledger: [] as LedgerItem[] }));
+              const recentPurchase = latest.find(
+                (t: LedgerItem) =>
+                  t.type === 'purchase' && Date.now() - new Date(t.createdAt).getTime() < 10 * 60 * 1000
+              );
+              if (credits > startingCredits || recentPurchase) {
+                dispatch(setCredits(credits));
+                setLedger(latest);
+                toast.success('Payment confirmed! Credits added.', { id: toastId });
+                return;
+              }
             }
-            loadDashboardData();
+          } catch (err) {
+            console.error('Error checking payment status:', err);
           }
-        } catch (err) {
-          console.error('Error confirming payment:', err);
-        } finally {
-          router.replace('/dashboard?tab=credits');
+          await new Promise((r) => setTimeout(r, 2000));
         }
+        toast.info('Payment received. Credits may take a minute to appear — refresh shortly.', { id: toastId });
       };
 
-      finalizePurchase();
+      waitForCredits();
     }
   }, []);
 
