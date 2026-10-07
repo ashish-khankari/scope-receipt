@@ -145,11 +145,17 @@ export interface ReceiptDraft {
   clientEmail: string;
 }
 
+export function getDefaultDeadline(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d.toISOString().split('T')[0];
+}
+
 export const defaultDraft: ReceiptDraft = {
   title: "Landing page redesign",
   deliverable: "1 responsive landing page redesign with hero section, problem/solution grid, pricing tiers, and contact form.",
   notIncluded: "Copywriting & custom stock photography\nBackend API integration / database setup\nSEO link building or ad setup\nMore than 2 rounds of revisions",
-  deadline: "2026-09-25",
+  deadline: getDefaultDeadline(),
   handoverMethod: "GitHub Pull Request + Vercel Preview Link",
   price: "350",
   currency: "USD",

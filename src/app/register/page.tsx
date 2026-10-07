@@ -153,7 +153,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Continue with Google button */}
+          {/* Continue with Google button (Temporarily commented out)
           <button
             type="button"
             onClick={handleGoogleSignUp}
@@ -190,6 +190,7 @@ export default function RegisterPage() {
             <span className="px-3 text-[11px] font-mono uppercase tracking-wider text-[#94a3b8]">or register with email</span>
             <div className="flex-1 border-t border-[#232936]" />
           </div>
+          */}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

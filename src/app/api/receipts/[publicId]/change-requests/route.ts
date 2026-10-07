@@ -13,6 +13,16 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Description is required' }, { status: 400 });
     }
 
+    const addPrice = Number(body.additionalPrice);
+    if (isNaN(addPrice) || addPrice < 0) {
+      return NextResponse.json({ success: false, error: 'Additional price cannot be negative' }, { status: 400 });
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (body.newDeadline && body.newDeadline < todayStr) {
+      return NextResponse.json({ success: false, error: 'Revised deadline cannot be in the past' }, { status: 400 });
+    }
+
     const id = `cr_${Math.random().toString(36).slice(2, 9)}`;
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 

@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FileCheck2, Plus, LayoutDashboard, ShieldCheck, LogOut, Coins } from 'lucide-react';
+import { FileCheck2, Plus, LayoutDashboard, ShieldCheck, LogOut, Coins, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useAppSelector, useAppDispatch } from '@/lib/store/store';
@@ -14,6 +14,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (pathname === '/') {
@@ -82,18 +83,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   Credits & Pricing
                 </Link>
               </>
-
             ) : (
-              <Link
-                href="/dashboard"
-                className={cn(
-                  "flex items-center gap-1.5 transition-colors hover:text-[#f4f5f8]",
-                  pathname === '/dashboard' && "text-emerald-400 font-semibold"
-                )}
-              >
-                <LayoutDashboard className="size-4" />
-                <span>Dashboard</span>
-              </Link>
+              <>
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    "flex items-center gap-1.5 transition-colors hover:text-[#f4f5f8]",
+                    pathname === '/dashboard' && "text-emerald-400 font-semibold"
+                  )}
+                >
+                  <LayoutDashboard className="size-4" />
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  href="/pricing"
+                  className={cn(
+                    "transition-colors hover:text-[#f4f5f8]",
+                    pathname === '/pricing' && "text-emerald-400 font-semibold"
+                  )}
+                >
+                  Pricing & Credits
+                </Link>
+              </>
             )}
           </nav>
 
@@ -110,12 +121,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <span>{user.credits} Credits</span>
                 </Link>
 
-                <Link href="/dashboard" className="md:hidden">
-                  <button className="p-2 text-[#cbd5e1] hover:text-[#f4f5f8] transition-colors" aria-label="Dashboard">
-                    <LayoutDashboard className="size-5" />
-                  </button>
-                </Link>
-
                 <button
                   onClick={handleLogout}
                   className="hidden sm:flex items-center gap-1.5 text-xs text-[#94a3b8] hover:text-red-400 transition-colors px-2 py-1 cursor-pointer"
@@ -126,7 +131,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </button>
               </>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <Link
                   href="/login"
                   className="text-xs font-medium text-[#cbd5e1] hover:text-[#f4f5f8] transition-colors px-2 py-1"
@@ -135,7 +140,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
                 <Link
                   href="/register"
-                  className="hidden sm:inline-block text-xs font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg transition-colors"
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   Get 1 Free Receipt
                 </Link>
@@ -150,8 +155,102 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <span>New Receipt</span>
               </Button>
             </Link>
+
+            {/* Mobile Menu Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex items-center justify-center p-2 rounded-lg text-[#cbd5e1] hover:text-[#f4f5f8] hover:bg-[#1a202c] transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[#232a38] bg-[#14171d] px-5 py-4 space-y-3 shadow-xl">
+            {user ? (
+              <>
+                <div className="flex items-center justify-between pb-3 border-b border-[#232a38]">
+                  <div className="text-xs">
+                    <p className="font-semibold text-[#f4f5f8]">{user.name}</p>
+                    <p className="text-[11px] text-[#8c98a9]">{user.email}</p>
+                  </div>
+                  <span className="flex items-center gap-1 font-mono text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-md">
+                    <Coins className="size-3" /> {user.credits} Credits
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 pt-1 text-sm font-medium">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 py-2 text-[#cbd5e1] hover:text-emerald-400"
+                  >
+                    <LayoutDashboard className="size-4" /> Dashboard
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 py-2 text-[#cbd5e1] hover:text-emerald-400"
+                  >
+                    <Coins className="size-4" /> Pricing & Credits
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center gap-2 py-2 text-red-400 hover:text-red-300 text-left w-full cursor-pointer"
+                  >
+                    <LogOut className="size-4" /> Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 text-sm font-medium">
+                <Link
+                  href="/#problem"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2 text-[#cbd5e1] hover:text-emerald-400"
+                >
+                  Why Receipts?
+                </Link>
+                <Link
+                  href="/#how-it-works"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2 text-[#cbd5e1] hover:text-emerald-400"
+                >
+                  How It Works
+                </Link>
+                <Link
+                  href="/pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2 text-[#cbd5e1] hover:text-emerald-400"
+                >
+                  Credits & Pricing
+                </Link>
+                <div className="pt-2 border-t border-[#232a38] flex flex-col gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2 text-[#cbd5e1] hover:text-[#f4f5f8]"
+                  >
+                    Freelancer Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2 text-center text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20"
+                  >
+                    Create Account (1 Free Credit)
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Main Page Content */}

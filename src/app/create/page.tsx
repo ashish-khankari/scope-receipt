@@ -140,12 +140,19 @@ export default function CreatePage() {
       toast.error('Please specify what is NOT included.');
       return;
     }
+    const todayStr = new Date().toISOString().split('T')[0];
     if (!draft.deadline) {
       toast.error('Please select a target deadline.');
       return;
     }
-    if (!draft.price) {
-      toast.error('Please enter the agreed price.');
+    if (draft.deadline < todayStr) {
+      toast.error('Target deadline cannot be in the past. Please select today or a future date.');
+      return;
+    }
+
+    const numericPrice = Number(draft.price);
+    if (!draft.price || isNaN(numericPrice) || numericPrice <= 0) {
+      toast.error('Agreed price must be a valid amount greater than 0.');
       return;
     }
 
@@ -363,11 +370,23 @@ export default function CreatePage() {
                   <Input
                     id="deadline"
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={draft.deadline}
-                    onChange={(e) => update('deadline', e.target.value)}
+                    onChange={(e) => {
+                      const today = new Date().toISOString().split('T')[0];
+                      const val = e.target.value;
+                      if (val && val < today) {
+                        toast.error('Deadline cannot be in the past. Please select today or a future date.');
+                        return;
+                      }
+                      update('deadline', val);
+                    }}
                     className="mt-2 bg-[#14171d] border-[#232936] text-[#f4f5f8] text-sm focus:border-emerald-500"
                     required
                   />
+                  <p className="mt-1 text-[11px] text-[#94a3b8]">
+                    Must be today or a future date.
+                  </p>
                 </div>
 
                 <div>
@@ -407,14 +426,27 @@ export default function CreatePage() {
                   </select>
 
                   <Input
+                    type="number"
+                    min="1"
+                    step="any"
                     value={draft.price}
-                    onChange={(e) => update('price', e.target.value.replace(/[^0-9]/g, ''))}
-                    inputMode="numeric"
+                    onKeyDown={(e) => {
+                      if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                      update('price', sanitized);
+                    }}
                     placeholder="350"
                     className="font-mono text-sm font-semibold bg-[#14171d] border-[#232936] text-[#f4f5f8] focus:border-emerald-500"
                     required
                   />
                 </div>
+                <p className="mt-1 text-[11px] text-[#94a3b8]">
+                  Positive amount for the deliverable. Negative amounts are not allowed.
+                </p>
               </div>
 
               {/* Client Info (Optional) */}

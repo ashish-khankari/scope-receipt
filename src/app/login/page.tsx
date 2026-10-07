@@ -126,7 +126,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Google Sign In */}
+          {/* Google Sign In (Temporarily commented out)
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -163,6 +163,7 @@ export default function LoginPage() {
             <span className="px-3 text-[11px] font-mono uppercase tracking-wider text-[#94a3b8]">or sign in with email</span>
             <div className="flex-1 border-t border-[#232936]" />
           </div>
+          */}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

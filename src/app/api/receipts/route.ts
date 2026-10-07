@@ -87,6 +87,24 @@ export async function POST(req: Request) {
       );
     }
 
+    // Validate deadline is not in the past
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (body.deadline < todayStr) {
+      return NextResponse.json(
+        { success: false, error: 'Deadline date cannot be in the past. Please select today or a future date.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate price is a positive number
+    const numericPrice = Number(body.price);
+    if (isNaN(numericPrice) || numericPrice <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Agreed price must be a valid positive amount greater than 0.' },
+        { status: 400 }
+      );
+    }
+
     const isDraft = body.status?.toUpperCase() === 'DRAFT';
     const targetStatus = isDraft ? 'DRAFT' : 'AWAITING_CONFIRMATION';
 

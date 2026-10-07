@@ -75,6 +75,17 @@ export default function ScopeChangePage() {
       return;
     }
 
+    if (Number(additionalPrice) < 0 || isNaN(Number(additionalPrice))) {
+      toast.error('Additional price cannot be negative.');
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (newDeadline && newDeadline < todayStr) {
+      toast.error('Revised deadline cannot be in the past. Please select today or a future date.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch(`/api/receipts/${receipt.publicId}/change-requests`, {
@@ -150,13 +161,25 @@ export default function ScopeChangePage() {
                   <Input
                     id="cr-price"
                     type="number"
+                    min="0"
+                    step="any"
                     value={additionalPrice}
-                    onChange={(e) => setAdditionalPrice(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                      setAdditionalPrice(sanitized);
+                    }}
                     placeholder="75"
                     className="font-mono text-sm font-semibold pl-8 bg-[#0d0f12] border-[#232936] text-[#f4f5f8] focus:border-emerald-500"
                     required
                   />
-                  <span className="absolute left-3 top-2.5 font-mono text-sm text-[#637082]">$</span>
+                  <span className="absolute left-3 top-2.5 font-mono text-sm text-[#637082]">
+                    {receipt.currency === 'EUR' ? '€' : receipt.currency === 'GBP' ? '£' : receipt.currency === 'INR' ? '₹' : '$'}
+                  </span>
                 </div>
               </div>
 
@@ -167,8 +190,17 @@ export default function ScopeChangePage() {
                 <Input
                   id="cr-date"
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={newDeadline}
-                  onChange={(e) => setNewDeadline(e.target.value)}
+                  onChange={(e) => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const val = e.target.value;
+                    if (val && val < today) {
+                      toast.error('Revised deadline cannot be in the past');
+                      return;
+                    }
+                    setNewDeadline(val);
+                  }}
                   className="mt-2 bg-[#0d0f12] border-[#232936] text-[#f4f5f8] text-sm focus:border-emerald-500"
                 />
               </div>
