@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { getAuthUser } from '@/lib/auth';
 import HomeClient from './HomeClient';
 
 export const metadata: Metadata = {
@@ -10,7 +12,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getAuthUser();
+  if (user) {
+    redirect('/dashboard');
+  }
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',

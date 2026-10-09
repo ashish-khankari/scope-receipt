@@ -40,8 +40,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           {/* Logo / Title */}
           <Link
-            href="/"
-            onClick={handleLogoClick}
+            href={user ? "/dashboard" : "/"}
+            onClick={user ? undefined : handleLogoClick}
             className="flex items-center gap-2.5 group cursor-pointer"
           >
             <div className="flex size-9 items-center justify-center rounded-lg bg-[#1c2331] border border-[#2e3b50] text-white transition-transform group-hover:scale-105 shadow-sm">

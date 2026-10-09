@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   Check,
@@ -16,9 +17,22 @@ import AppShell from '@/components/AppShell';
 import ReceiptCard from '@/components/ReceiptCard';
 import { Button } from '@/components/ui/button';
 import { defaultDraft, makeReceipt } from '@/lib/scopeReceipt';
+import { useAppSelector } from '@/lib/store/store';
 
 export default function HomeClient() {
+  const router = useRouter();
+  const user = useAppSelector((state) => state.auth.user);
   const [locked, setLocked] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
+
+  if (user) {
+    return null;
+  }
 
   // Calculator state
   const [hourlyRate, setHourlyRate] = useState(75);
